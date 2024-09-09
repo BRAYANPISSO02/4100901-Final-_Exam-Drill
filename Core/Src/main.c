@@ -22,6 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+
+#include "led_estatus.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
