@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-uint8_t led_estatus(uint16_t GPIO_Pin);
+void estatus_hz(uint8_t stt);
 //uint8_t keypad_scan(uint16_t GPIO_Pin);
 
 #endif /* INC_ESTATUS_H_ */
