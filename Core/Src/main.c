@@ -46,6 +46,9 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
+uint16_t estado_clave = 0;
+uint16_t tiempo_led = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -111,7 +114,15 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+	  if(estado_clave == 1){
+		  if(HAL_GetTick < (tiempo_led+3000)){
 
+		  }else if(estado_clave == 0){
+
+		  }  else{
+			  tiempo_led = HAL_GetTick;
+		  }
+	  }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
