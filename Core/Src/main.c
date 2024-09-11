@@ -46,7 +46,8 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
-uint16_t estado_clave = 0;
+uint8_t presion_numeral = 1;
+uint8_t estado_clave = 1;
 uint16_t tiempo_led = 0;
 
 /* USER CODE END PV */
@@ -114,16 +115,16 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  if(estado_clave == 1){
-		  if(HAL_GetTick < (tiempo_led+3000)){
 
-		  }else if(estado_clave == 0){
-
-		  }  else{
-			  tiempo_led = HAL_GetTick;
-		  }
-	  }
     /* USER CODE BEGIN 3 */
+	  if(presion_numeral == 1){
+		  tiempo_led = HAL_GetTick() + 3000;
+		  presion_numeral = 0;
+	  }
+
+	  if( HAL_GetTick() < tiempo_led){
+		  estatus_hz (estado_clave);
+	  }
   }
   /* USER CODE END 3 */
 }
@@ -230,10 +231,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(SYSTEM_LED_GPIO_Port, SYSTEM_LED_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(ROW_1_GPIO_Port, ROW_1_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, SYSTEM_LED_Pin|ROW_1_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, ROW_2_Pin|ROW_4_Pin|ROW_3_Pin, GPIO_PIN_SET);
