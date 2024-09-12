@@ -2,8 +2,6 @@
 #include "main.h"
 extern UART_HandleTypeDef huart2;
 
-uint16_t tiempo_cambio = 1;
-
 /**
  * @brief: Esta función indica los Hz a los que debe funcionar el led.
  *
@@ -13,15 +11,29 @@ uint16_t tiempo_cambio = 1;
  */
 void estatus_hz (uint8_t stt){
 
-	if (stt == 1 && HAL_GetTick() == tiempo_cambio) {
-		HAL_UART_Transmit(&huart2, "Entró a incorrecto\r\n", 21, 10);
+	static uint16_t tiempo_cambio = 0xFFFF;
+
+	if(HAL_GetTick() > tiempo_cambio){
+		if (stt == 1) {
+			HAL_UART_Transmit(&huart2, "Entró a incorrecto2\r\n", 22, 10);
+			HAL_GPIO_TogglePin(SYSTEM_LED_GPIO_Port, SYSTEM_LED_Pin);
+			tiempo_cambio = HAL_GetTick() + 125;
+
+		}else if (stt == 0){
+			HAL_UART_Transmit(&huart2, "Entró a correcto2\r\n", 20, 10);
+			HAL_GPIO_WritePin(SYSTEM_LED_GPIO_Port, SYSTEM_LED_Pin, 1);
+			tiempo_cambio = HAL_GetTick() + 125;
+		}
+	}
+
+	if(stt == 1 && tiempo_cambio == 0xFFFF){
+		HAL_UART_Transmit(&huart2, "Entró a incorrecto1\r\n", 22, 10);
 		HAL_GPIO_TogglePin(SYSTEM_LED_GPIO_Port, SYSTEM_LED_Pin);
 		tiempo_cambio = HAL_GetTick() + 125;
-
-	}else if (stt == 0 && HAL_GetTick() == tiempo_cambio){
-		HAL_UART_Transmit(&huart2, "Entró a correcto\r\n", 19, 10);
+	}else if (stt == 0 && tiempo_cambio == 0xFFFF){
+		HAL_UART_Transmit(&huart2, "Entró a correcto1\r\n", 20, 10);
 		HAL_GPIO_WritePin(SYSTEM_LED_GPIO_Port, SYSTEM_LED_Pin, 1);
 		tiempo_cambio = HAL_GetTick() + 125;
-
 	}
+
 }
