@@ -21,7 +21,10 @@ void estatus_hz (uint8_t stt){
 
 		}else if (stt == 0){
 			HAL_UART_Transmit(&huart2, "Entró a correcto2\r\n", 20, 10);
-			HAL_GPIO_WritePin(SYSTEM_LED_GPIO_Port, SYSTEM_LED_Pin, 1);
+			HAL_GPIO_WritePin(SYSTEM_LED_GPIO_Port, SYSTEM_LED_Pin, 0);
+			tiempo_cambio = HAL_GetTick() + 125;
+		}else if (stt == 30){
+			HAL_UART_Transmit(&huart2, "No esta funcionando2\r\n", 22, 10);
 			tiempo_cambio = HAL_GetTick() + 125;
 		}
 	}
@@ -32,7 +35,10 @@ void estatus_hz (uint8_t stt){
 		tiempo_cambio = HAL_GetTick() + 125;
 	}else if (stt == 0 && tiempo_cambio == 0xFFFF){
 		HAL_UART_Transmit(&huart2, "Entró a correcto1\r\n", 20, 10);
-		HAL_GPIO_WritePin(SYSTEM_LED_GPIO_Port, SYSTEM_LED_Pin, 1);
+		HAL_GPIO_WritePin(SYSTEM_LED_GPIO_Port, SYSTEM_LED_Pin, 0);
+		tiempo_cambio = HAL_GetTick() + 125;
+	}else if (stt == 30 && tiempo_cambio == 0xFFFF){
+		HAL_UART_Transmit(&huart2, "No esta funcionando1\r\n", 22, 10);
 		tiempo_cambio = HAL_GetTick() + 125;
 	}
 

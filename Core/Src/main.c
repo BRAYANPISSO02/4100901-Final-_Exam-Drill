@@ -26,6 +26,7 @@
 #include "led_estatus.h"
 #include "keypad.h"
 #include "ring_buffer.h"
+#include  "val_clave.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,10 +48,12 @@
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint16_t tiempo_led = 0;
-uint8_t presion_teclado = 0;
+uint32_t tiempo_led = 0;
+flag_enum presion_teclado = NO_PRESION;
 uint16_t tecla_presionada;
-uint8_t clave[10];
+uint8_t clave[TAM_CLAVE];
+ring_buffer_t ring_clave;
+uint8_t validacion_clave = 30;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -76,7 +79,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	if (key_pressed != 0xFF) {
 		printf("Se presionó: %c\r\n", key_pressed);
 		tecla_presionada = key_pressed;
-		presion_teclado = 1;
+		presion_teclado = PRESION;
 		return;
 	}
 
@@ -114,7 +117,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  ring_buffer_init(&ring_clave, clave, TAM_CLAVE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -125,16 +128,18 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(presion_teclado == 1 && tecla_presionada != '#' && tecla_presionada != '*'){
-		  for (int i = 0; i < 10; ++i) {
-		          clave[i] = tecla_presionada;
-		      }
-	  } else if(presion_teclado == 1 && tecla_presionada == '*'){
-		  for (int i = 0; i < 10; ++i) {
-		  		          clave[i] = NULL;
-		  		      }
-	  } else if(presion_teclado == 1 && tecla_presionada == '#'){
 
+	  if(presion_teclado == PRESION && tecla_presionada != '#' && tecla_presionada != '*'){
+		  presion_teclado = NO_PRESION;
+		  ring_buffer_write(&ring_clave, tecla_presionada);
+	  } else if(presion_teclado == PRESION && tecla_presionada == '*'){
+		  presion_teclado = NO_PRESION;
+		  ring_buffer_reset(&ring_clave);
+	  } else if(presion_teclado == PRESION && tecla_presionada == '#'){
+		  presion_teclado = NO_PRESION;
+		  validacion_clave = validar_clave(&ring_clave);
+		  ring_buffer_reset(&ring_clave);
+		  printf("Validacion: %d\r\n", validacion_clave);
 	  }
 
 
@@ -144,9 +149,11 @@ int main(void)
 		  tecla_presionada = 0xFF;
 	  }
 	  if( HAL_GetTick() < tiempo_led){
-		  estatus_hz(1); //Utilizamos la función estatus_hz de la librería "led_estatus"
-	  }  	  	  	  	 //que sirve para indicar la frencuencia de encendido del led.
-  }
+		  estatus_hz(validacion_clave); //Utilizamos la función estatus_hz de la librería "led_estatus"
+	  }else{  	  	  	  	 //que sirve para indicar la frencuencia de encendido del led.
+		  HAL_GPIO_WritePin(SYSTEM_LED_GPIO_Port, SYSTEM_LED_Pin, 1);
+	  }
+	  }
   /* USER CODE END 3 */
 }
 
@@ -216,7 +223,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 256000;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;

@@ -40,15 +40,22 @@ void ring_buffer_reset(ring_buffer_t *rb)
  */
 uint8_t ring_buffer_size(ring_buffer_t *rb)
 {
+//	uint8_t size = 0;
+//		if (rb->head >= rb->tail) {
+//			size = rb->head - rb->tail;
+//		} else if (rb->is_full == 0) {
+//			size = (rb->capacity - rb->tail) + rb->head;
+//		} else {
+//			size = rb->capacity;
+//		}
+//		return size;
 	uint8_t size = 0;
-	if (rb->head >= rb->tail && rb->is_full == 0) {
-		size = rb->head - rb->tail;
-	} else if (rb->is_full == 1) {
-		size = rb->capacity;
-	} else {
-		size = (rb->capacity - rb->tail) + rb->head;
-	}
-	return size;
+		if (rb->head >= rb->tail && rb->is_full == 0) {
+			size = rb->head - rb->tail;
+		} else {
+			size = (rb->capacity - rb->tail) + rb->head;
+		}
+		return size;
 }
 
 /*

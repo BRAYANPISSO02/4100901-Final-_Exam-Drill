@@ -31,12 +31,15 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#define TAM_CLAVE 10
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+typedef enum{
+	NO_PRESION,
+	PRESION,
+}flag_enum;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
