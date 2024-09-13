@@ -25,6 +25,7 @@
 
 #include "led_estatus.h"
 #include "keypad.h"
+#include "ring_buffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +50,7 @@ UART_HandleTypeDef huart2;
 uint16_t tiempo_led = 0;
 uint8_t presion_teclado = 0;
 uint16_t tecla_presionada;
+uint8_t clave[10];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -123,6 +125,18 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  if(presion_teclado == 1 && tecla_presionada != '#' && tecla_presionada != '*'){
+		  for (int i = 0; i < 10; ++i) {
+		          clave[i] = tecla_presionada;
+		      }
+	  } else if(presion_teclado == 1 && tecla_presionada == '*'){
+		  for (int i = 0; i < 10; ++i) {
+		  		          clave[i] = NULL;
+		  		      }
+	  } else if(presion_teclado == 1 && tecla_presionada == '#'){
+
+	  }
+
 
 	  //Creamos los condicionales para cuando se presione el numeral, encienda 3000 ms el led (diferentes Frec.)
 	  if(tecla_presionada == '#'){
