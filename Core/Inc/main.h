@@ -31,6 +31,9 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "ssd1306_fonts.h"
+#include "ssd1306.h"
+
 #define TAM_CLAVE 10
 /* USER CODE END Includes */
 

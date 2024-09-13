@@ -21,12 +21,14 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
 #include <stdio.h>
 
 #include "led_estatus.h"
 #include "keypad.h"
 #include "ring_buffer.h"
-#include  "val_clave.h"
+#include "val_clave.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,21 +47,28 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c1;
+
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+uint8_t var_control = 0;
 uint32_t tiempo_led = 0;
 flag_enum presion_teclado = NO_PRESION;
 uint16_t tecla_presionada;
 uint8_t clave[TAM_CLAVE];
 ring_buffer_t ring_clave;
+uint8_t buffer_pantalla[TAM_CLAVE];
 uint8_t validacion_clave = 30;
+uint8_t pantalla_x = 20;
+uint8_t pantalla_y = 10;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -116,8 +125,15 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+
   ring_buffer_init(&ring_clave, clave, TAM_CLAVE);
+  ssd1306_Init();
+ssd1306_Fill(Black);
+ssd1306_SetCursor(30, 30);
+ssd1306_WriteString("Welcome!", Font_7x10, White);
+ssd1306_UpdateScreen();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -129,17 +145,36 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+
 	  if(presion_teclado == PRESION && tecla_presionada != '#' && tecla_presionada != '*'){
 		  presion_teclado = NO_PRESION;
 		  ring_buffer_write(&ring_clave, tecla_presionada);
+		  buffer_pantalla[var_control] = tecla_presionada;
+		  var_control ++;
+
+		  ssd1306_Fill(Black);
+		  ssd1306_SetCursor(pantalla_x, pantalla_y);
+		  ssd1306_WriteString(&buffer_pantalla, Font_7x10, White);
+		  ssd1306_UpdateScreen();
+
 	  } else if(presion_teclado == PRESION && tecla_presionada == '*'){
 		  presion_teclado = NO_PRESION;
 		  ring_buffer_reset(&ring_clave);
+		  for(uint8_t i = 0; i <= var_control; i++ ){
+			  buffer_pantalla[i] = 0;
+		  }
+//		  memset(&buffer_pantalla, 0, TAM_CLAVE);
+		  var_control = 0;
+
+		  ssd1306_Fill(Black);
+		  ssd1306_UpdateScreen();
+
 	  } else if(presion_teclado == PRESION && tecla_presionada == '#'){
 		  presion_teclado = NO_PRESION;
 		  validacion_clave = validar_clave(&ring_clave);
 		  ring_buffer_reset(&ring_clave);
 		  printf("Validacion: %d\r\n", validacion_clave);
+
 	  }
 
 
@@ -205,6 +240,54 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.Timing = 0x10D19CE4;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
